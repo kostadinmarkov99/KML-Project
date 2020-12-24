@@ -8,6 +8,36 @@
 #include <cstring>
 #include "Tokanizer.h"
 
+std::string enumToStringO(Tokanizer::Token::TokenType t) {
+    switch (t)
+    {
+    case Tokanizer::Token::MAP_INC:
+        return "MAP-INC";
+    case Tokanizer::Token::MAP_MLT:
+        return "MAP-MLT";
+    case Tokanizer::Token::AGG_SUM:
+        return "AGG-SUM";
+    case Tokanizer::Token::AGG_PRO:
+        return "AGG-PRO";
+    case Tokanizer::Token::AGG_AVG:
+        return "AGG-AVG";
+    case Tokanizer::Token::AGG_FST:
+        return "AGG-FST";
+    case Tokanizer::Token::AGG_LST:
+        return "AGG-LST";
+    case Tokanizer::Token::SRT_REV:
+        return "SRT-REV";
+    case Tokanizer::Token::SRT_ORD:
+        return "SRT-ORD";
+    case Tokanizer::Token::SRT_SLC:
+        return "SRT-SLC";
+    case Tokanizer::Token::SRT_DST:
+        return "SRT-DST";
+    }
+
+    return "";
+}
+
 int main()
 {
     std::string inputFileName;
@@ -32,8 +62,9 @@ int main()
     }
 
     Tokanizer tokanizer(stringFromFile);
+    std::string stringFromFileCopy = stringFromFile;
 
-    Tokanizer::Token token = tokanizer.getNextToken(stringFromFile);
+    Tokanizer::Token token = tokanizer.getNextToken(stringFromFile, stringFromFileCopy);
     std::stack<Tokanizer::Token> tokenStack;
     std::queue<Tokanizer::Token> addParamStack;
     tokenStack.push(token);
@@ -56,12 +87,12 @@ int main()
             }
             if (!flag) {
                 tokenStack.push(currentToken);
-                Tokanizer::Token tk = tokanizer.getNextToken(stringFromFile);
+                Tokanizer::Token tk = tokanizer.getNextToken(stringFromFile, stringFromFileCopy);
 
                 if (tk.pn.params != "Undefined") {
                     //tokenStack.push(tk);
-                    int index = tokenStack.size();
-                    tk.pn.index = index;
+                    //int index = tokenStack.size();
+                    //tk.pn.nextTag = index;
                     addParamStack.push(tk);
                     lastInQueue = tk;
                 }
@@ -99,7 +130,7 @@ int main()
 
             int currStackIndex = tokenStack.size() + 1;
 
-            if (currStackIndex == currentTokenOther.pn.index) {
+            if (currentToken.prevTag == currentTokenOther.pn.nextTag) {
                 resultCurrToken += " " + currentTokenOther.pn.params;
                 addParamStack.pop();
             }

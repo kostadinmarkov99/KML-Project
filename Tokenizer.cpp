@@ -190,7 +190,27 @@ std::string isClosed(std::string& in ,std::string& tagNm) {
 	return in;
 }
 
-Tokanizer::Token Tokanizer::getNextToken(std::string& in) {
+std::string getNextTag(std::string in) {
+	char next = in[0];
+
+	std::string tagNm = "";
+	if (next == '<') {
+		in = in.substr(1, in.length());
+		
+		next = in[0];
+
+		while (next != '>') {
+			//index++;
+			tagNm += next;
+			in = in.substr(1, in.length());
+			next = in[0];
+		}
+	}
+
+	return tagNm;
+}
+
+Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 	Tokanizer::Token result;
 
 	//clearWhiteSpace();
@@ -211,6 +231,10 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in) {
 
 		in = isClosed(in, tagNm);
 		
+		size_t tagNmLength = tagNm.length();
+
+		std::string firstTagInCopy = inCopy.substr(1, tagNmLength);
+		
 		std::string paramName = getParam(tagNm);
 		std::string params = getAllParams(in);
 		std::string closedTagNm = "";
@@ -219,8 +243,38 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in) {
 		int posss = tagNm.find(' ', 0);
 		std::string tagName = tagNm.substr(0, posss);
 
+		if (tagNm == "") {
+			tagNm = params;
+		}
+
+		if(firstTagInCopy == tagNm){
+			result.prevTag = "firstTag";
+		}
+		else {
+			
+
+			std::string firstTagFromCopy = "";
+			char nextFromCopy = inCopy[0];
+			while (nextFromCopy != '>') {
+				if (nextFromCopy != '<') {
+					//index++;
+					firstTagFromCopy += nextFromCopy;
+				}
+				inCopy = inCopy.substr(1, inCopy.length());
+				nextFromCopy = inCopy[0];
+			}
+
+			inCopy = isClosed(inCopy, firstTagFromCopy);
+			getAllParams(inCopy);
+
+			int firstTagFromCopyPoss = firstTagFromCopy.find(' ', 0);
+			if (firstTagFromCopyPoss > 0)
+				firstTagFromCopy = firstTagFromCopy.substr(0, firstTagFromCopyPoss);
+			result.prevTag = firstTagFromCopy;
+		}
+
 		if (tagNm != "") {
-			bool areClosed = areAllTagsClosed(in, tagName);
+			bool areClosed = areAllTagsClosed(in, tagNm);
 			if (!areClosed) {
 				result.type = Tokanizer::Token::ERROR;
 				return result;
@@ -257,8 +311,14 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in) {
 		else { // else if(only numbers or stuff)
 			//bool isOnlyInts = isOnlyNumbers(params);
 			//if (!isOnlyInts) result.type = Tokanizer::Token::ERROR;
+			std::string nextTag = getNextTag(in);
+			if (nextTag[0] == '/') {
+				nextTag = nextTag.substr(1, nextTag.length());
+			}
+
 			Tokanizer::Paramnum pn;
-			pn.params = params;
+			pn.params = tagNm;
+			pn.nextTag = nextTag;
 			result.pn = pn;
 		}
 	}

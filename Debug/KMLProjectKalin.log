@@ -1,1 +1,2 @@
-﻿C:\Users\PC\source\repos\KMLProjectKalin\KMLProjectKalin.vcxproj : error MSB4025: The project file could not be loaded. Could not find file 'C:\Users\PC\source\repos\KMLProjectKalin\KMLProjectKalin.vcxproj'.
+﻿  KMLProjectKalin.cpp
+  KMLProjectKalin.vcxproj -> C:\Users\PC\source\repos\KMLProjectKalin\Debug\KMLProjectKalin.exe

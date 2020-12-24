@@ -10,7 +10,7 @@ public:
 	struct Paramnum
 	{
 		std::string params = "Undefined";
-		int index = -1;
+		std::string nextTag = "lastTag";
 	};
 
 	struct Token
@@ -19,12 +19,13 @@ public:
 		TokenType type;
 		std::string paramName;
 		std::string params;
+		std::string prevTag;
 		bool moreTokens = false;
 		Paramnum pn;
 	};
 
 	Tokanizer(std::string& _in);
-	Token getNextToken(std::string&);
+	Token getNextToken(std::string&, std::string&);
 	//bool hasNoMoreTokens(std::string, std::string);
 	bool hasMoreTokens(std::string _in, std::string type);
 	std::string doMapInc(Tokanizer::Token&  token);
