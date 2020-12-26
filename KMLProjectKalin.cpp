@@ -126,6 +126,8 @@ int main()
                 resultCurrToken = tokanizer.doSrtSlc(currentToken);
             }else if (currentToken.type == Tokanizer::Token::SRT_DST) {
                 resultCurrToken = tokanizer.doSrtDst(currentToken);
+            }else if (currentToken.type == Tokanizer::Token::LET_TAG) {
+                resultCurrToken = currentToken.params;
             }
 
             int currStackIndex = tokenStack.size() + 1;
@@ -185,7 +187,9 @@ int main()
             else if (currentToken.type == Tokanizer::Token::SRT_DST) {
                 resultCurrToken = tokanizer.doSrtDst(currentToken);
             }
-
+            else if (currentToken.type == Tokanizer::Token::LET_TAG) {
+                resultCurrToken = currentToken.params;
+            }
             resultString = resultCurrToken;
         }
     }

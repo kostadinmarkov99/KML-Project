@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>  // Sort
+#include <stack>
+#include <queue>
 #include <sstream>
 #include "Tokanizer.h"
 
@@ -210,6 +212,154 @@ std::string getNextTag(std::string in) {
 	return tagNm;
 }
 
+std::string findName(std::string& paramVal) {
+	std::string resultString = "";
+
+	Tokanizer tokanizer(paramVal);
+	std::string paramValCopy = paramVal;
+	
+	std::string stringFromFileCopy = paramVal;
+
+	Tokanizer::Token token = tokanizer.getNextToken(paramVal, stringFromFileCopy);
+	std::stack<Tokanizer::Token> tokenStack;
+	std::queue<Tokanizer::Token> addParamStack;
+	tokenStack.push(token);
+	Tokanizer::Token lastInQueue;
+	lastInQueue.moreTokens = true;
+	bool flag = false;
+	bool flagTwo = false;
+
+	while (!tokenStack.empty()) {
+		Tokanizer::Token currentToken = tokenStack.top();
+		Tokanizer::Token currentTokenOther;
+		tokenStack.pop();
+		if (addParamStack.size() != 0)
+			currentTokenOther = addParamStack.front();
+
+		if (currentToken.moreTokens) {
+			flagTwo = true;
+			int addPatamStackSize = addParamStack.size();
+			if (addParamStack.size() > 0 && !lastInQueue.moreTokens) {
+				flag = true;
+			}
+			if (!flag) {
+				tokenStack.push(currentToken);
+				Tokanizer::Token tk = tokanizer.getNextToken(paramVal, stringFromFileCopy);
+
+				if (tk.pn.params != "Undefined") {
+					//tokenStack.push(tk);
+					//int index = tokenStack.size();
+					//tk.pn.nextTag = index;
+					addParamStack.push(tk);
+					lastInQueue = tk;
+				}
+				else tokenStack.push(tk);
+			}
+		}//MAP_INC, MAP_MLT, AGG_SUM, AGG_PRO, AGG_AVG, AGG_FST, AGG_LST, SRT_REV, SRT_ORD, SRT_SLC, SRT_DST, NUMS
+		if (flag) {
+			//Do the tag and update the last tag
+			std::string resultCurrToken = "";
+			if (currentToken.type == Tokanizer::Token::MAP_INC) {
+				resultCurrToken = tokanizer.doMapInc(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::MAP_MLT) {
+				resultCurrToken = tokanizer.doMapMlp(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_SUM) {
+				resultCurrToken = tokanizer.doAggSum(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_PRO) {
+				resultCurrToken = tokanizer.doAggPro(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_AVG) {
+				resultCurrToken = tokanizer.doAggAvg(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_FST) {
+				resultCurrToken = tokanizer.doAggFst(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_LST) {
+				resultCurrToken = tokanizer.doAggLst(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_REV) {
+				resultCurrToken = tokanizer.doSrtRev(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_ORD) {
+				resultCurrToken = tokanizer.doSrtOrd(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_SLC) {
+				resultCurrToken = tokanizer.doSrtSlc(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_DST) {
+				resultCurrToken = tokanizer.doSrtDst(currentToken);
+			}
+
+			int currStackIndex = tokenStack.size() + 1;
+
+			if (currentToken.prevTag == currentTokenOther.pn.nextTag) {
+				resultCurrToken += " " + currentTokenOther.pn.params;
+				addParamStack.pop();
+			}
+
+			Tokanizer::Token nextToken;
+			//TODO: if I there is no nexToken?
+			if (tokenStack.size() == 0) {
+				resultString = resultCurrToken;
+				break;
+			}
+			else {
+				nextToken = tokenStack.top();
+				tokenStack.pop();
+			}
+			nextToken.params += " " + resultCurrToken;
+			nextToken.moreTokens = false;
+
+			tokenStack.push(nextToken);
+		}
+		else if (!flagTwo) {
+			std::string resultCurrToken = "";
+			if (currentToken.type == Tokanizer::Token::MAP_INC) {
+				resultCurrToken = tokanizer.doMapInc(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::MAP_MLT) {
+				resultCurrToken = tokanizer.doMapMlp(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_SUM) {
+				resultCurrToken = tokanizer.doAggSum(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_PRO) {
+				resultCurrToken = tokanizer.doAggPro(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_AVG) {
+				resultCurrToken = tokanizer.doAggAvg(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_FST) {
+				resultCurrToken = tokanizer.doAggFst(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::AGG_LST) {
+				resultCurrToken = tokanizer.doAggLst(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_REV) {
+				resultCurrToken = tokanizer.doSrtRev(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_ORD) {
+				resultCurrToken = tokanizer.doSrtOrd(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_SLC) {
+				resultCurrToken = tokanizer.doSrtSlc(currentToken);
+			}
+			else if (currentToken.type == Tokanizer::Token::SRT_DST) {
+				resultCurrToken = tokanizer.doSrtDst(currentToken);
+			}
+
+			resultString = resultCurrToken;
+		}
+	}
+
+	std::string hello = "hello";
+
+	return resultString;
+}
+
 Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 	Tokanizer::Token result;
 
@@ -308,6 +458,37 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 			fillProperties(result, Tokanizer::Token::SRT_SLC, paramName, params);
 		else if (isLike("SRT-DST", tagNm))
 			fillProperties(result, Tokanizer::Token::SRT_DST, paramName, params);
+		else if (isLike("LET", tagNm)) {
+			int bodyPos = in.find("<BODY/>");
+			int letCloseTag = in.find("</LET>");
+			
+			if (bodyPos == -1 || letCloseTag) {
+				result.type = Tokanizer::Token::ERROR;
+			}
+
+			std::string nameParamValueIn = in.substr(0, bodyPos);
+		
+			std::string nameParamValueString = findName(nameParamValueIn);
+
+			in = in.substr(bodyPos + 7, in.length());
+
+			letCloseTag = in.find("</LET>");
+
+			std::string replaceStr = in.substr(0, letCloseTag);
+			
+			size_t namePos = in.find(paramName);
+			size_t nameLength = paramName.length();
+
+			replaceStr = replaceStr.replace(namePos, nameLength, nameParamValueString);
+
+			std::string letResult = findName(replaceStr);
+
+			in = in.substr(letCloseTag + 6, in.length());
+			
+			result.type = Tokanizer::Token::LET_TAG;
+			result.paramName = paramName;
+			result.params = letResult;
+		}
 		else { // else if(only numbers or stuff)
 			//bool isOnlyInts = isOnlyNumbers(params);
 			//if (!isOnlyInts) result.type = Tokanizer::Token::ERROR;

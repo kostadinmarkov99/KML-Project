@@ -1,2 +1,7 @@
 ﻿  KMLProjectKalin.cpp
+  Tokenizer.cpp
+C:\Users\PC\source\repos\KMLProjectKalin\Tokenizer.cpp(131,39): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\PC\source\repos\KMLProjectKalin\Tokenizer.cpp(134,36): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\PC\source\repos\KMLProjectKalin\Tokenizer.cpp(154,27): warning C4101: 'exc': unreferenced local variable
+  Generating Code...
   KMLProjectKalin.vcxproj -> C:\Users\PC\source\repos\KMLProjectKalin\Debug\KMLProjectKalin.exe

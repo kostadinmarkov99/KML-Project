@@ -15,7 +15,7 @@ public:
 
 	struct Token
 	{
-		enum TokenType {MAP_INC, MAP_MLT, AGG_SUM, AGG_PRO, AGG_AVG, AGG_FST, AGG_LST,SRT_REV, SRT_ORD, SRT_SLC, SRT_DST, ERROR};
+		enum TokenType {MAP_INC, MAP_MLT, AGG_SUM, AGG_PRO, AGG_AVG, AGG_FST, AGG_LST,SRT_REV, SRT_ORD, SRT_SLC, SRT_DST, LET_TAG ,ERROR};
 		TokenType type;
 		std::string paramName;
 		std::string params;
@@ -26,6 +26,8 @@ public:
 
 	Tokanizer(std::string& _in);
 	Token getNextToken(std::string&, std::string&);
+
+	std::string getResult();
 	//bool hasNoMoreTokens(std::string, std::string);
 	bool hasMoreTokens(std::string _in, std::string type);
 	std::string doMapInc(Tokanizer::Token&  token);
