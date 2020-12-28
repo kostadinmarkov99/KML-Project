@@ -70,7 +70,15 @@ std::vector<size_t> findAllOccurances(std::string data, std::string toSearch)
 {
 	std::vector<size_t> vec;
 	// Get the first occurrence
+	
 	size_t pos = data.find(toSearch);
+	
+	//if we do not closed tag
+	if (pos > data.length() && pos > toSearch.length()) {
+		vec.push_back(-1);
+		return vec;
+	}
+
 	// Repeat till end is reached
 	while (pos != std::string::npos)
 	{
@@ -84,11 +92,20 @@ std::vector<size_t> findAllOccurances(std::string data, std::string toSearch)
 }
 
 bool areAllTagsClosed(std::string& in, std::string& tagNm) {
-	std::vector<size_t> vecTagNm = findAllOccurances(in, tagNm);
+	if (tagNm == "") return true;
+	std::vector<size_t> vecTagNm = findAllOccurances(in, "<" + tagNm);
 	std::vector<size_t> vecClosedTagNm = findAllOccurances(in, "/" + tagNm);
 
+	if (std::count(vecClosedTagNm.begin(), vecClosedTagNm.end(), -1)) {
+		return false;
+	}
+
+	//int sizeVec = vecTagNm.size() + 1;
+	
 	if (vecTagNm.size() == vecClosedTagNm.size()) return true;
 	else return false;
+	
+	return true;
 }
 
 std::string getParam(std::string tagNm) {
@@ -116,7 +133,8 @@ std::string getAllParams(std::string& _in) {
 	index++;
 	char firstEl = _in[0];
 	
-	while (firstEl != '<') {
+	while (firstEl != '<' && firstEl != '\0') {
+		if (firstEl == '\0') return "Fail";
 		result += firstEl;
 		_in = _in.substr(1, _in.length());
 		firstEl = _in[0];
@@ -135,6 +153,10 @@ void fillProperties(Tokanizer::Token& result ,Tokanizer::Token::TokenType tokenT
 	result.params = params;
 }
 
+bool is_digits(const std::string& str)
+{
+	return std::all_of(str.begin(), str.end(), ::isdigit); // C++11
+}
 bool isOnlyNumbers(std::string paramNm) {
 	std::string delimiter = " ";
 	size_t pos = 0;
@@ -355,13 +377,13 @@ std::string findName(std::string& paramVal) {
 		}
 	}
 
-	std::string hello = "hello";
-
 	return resultString;
 }
 
 Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 	Tokanizer::Token result;
+
+	std::string copyInCopy = inCopy;
 
 	//clearWhiteSpace();
 	char next = in[0];
@@ -383,10 +405,13 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 		
 		size_t tagNmLength = tagNm.length();
 
+		std::string secCopy = in;
+
 		std::string firstTagInCopy = inCopy.substr(1, tagNmLength);
 		
 		std::string paramName = getParam(tagNm);
 		std::string params = getAllParams(in);
+		
 		std::string closedTagNm = "";
 		if (tagNm == "") params = closed(params, closedTagNm);
 		else params = isClosed(params, tagNm);
@@ -423,12 +448,19 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 			result.prevTag = firstTagFromCopy;
 		}
 
-		if (tagNm != "") {
-			bool areClosed = areAllTagsClosed(in, tagNm);
-			if (!areClosed) {
-				result.type = Tokanizer::Token::ERROR;
-				return result;
+		//std::string tagInBreckets = "<" + tagName + ">";
+		if (tagName != "") {
+			if (!is_digits(tagName)) {
+				bool areClosed = areAllTagsClosed(copyInCopy, tagName);
+
+				//if (tagNm != "") {
+					//areClosed = areAllTagsClosed(copyInCopy, tagName);
+				if (!areClosed) {
+					result.type = Tokanizer::Token::ERROR;
+					return result;
+				}
 			}
+			//}
 		}
 
 		//Getiting the Map tags
@@ -493,6 +525,8 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 			//bool isOnlyInts = isOnlyNumbers(params);
 			//if (!isOnlyInts) result.type = Tokanizer::Token::ERROR;
 			std::string nextTag = getNextTag(in);
+			
+			if (nextTag == "") nextTag = secCopy;
 			if (nextTag[0] == '/') {
 				nextTag = nextTag.substr(1, nextTag.length());
 			}
@@ -502,6 +536,8 @@ Tokanizer::Token Tokanizer::getNextToken(std::string& in, std::string& inCopy) {
 			pn.nextTag = nextTag;
 			result.pn = pn;
 		}
+
+		if (params == "Fail") result.type = Tokanizer::Token::ERROR;
 	}
 
 	if(hasMoreTokens(in, enumToString(result.type))){
@@ -558,6 +594,37 @@ std::vector<int> paramsInVector(std::string& paramsAsString) {
 	return paramsAsInts;
 }
 
+std::string Tokanizer::doTasks(Tokanizer& tokanizer, Tokanizer::Token& currentToken) {
+	std::string resultCurrToken = "";
+
+	if (currentToken.type == Tokanizer::Token::MAP_INC)
+		resultCurrToken = tokanizer.doMapInc(currentToken);
+	else if (currentToken.type == Tokanizer::Token::MAP_MLT)
+		resultCurrToken = tokanizer.doMapMlp(currentToken);
+	else if (currentToken.type == Tokanizer::Token::AGG_SUM)
+		resultCurrToken = tokanizer.doAggSum(currentToken);
+	else if (currentToken.type == Tokanizer::Token::AGG_PRO)
+		resultCurrToken = tokanizer.doAggPro(currentToken);
+	else if (currentToken.type == Tokanizer::Token::AGG_AVG)
+		resultCurrToken = tokanizer.doAggAvg(currentToken);
+	else if (currentToken.type == Tokanizer::Token::AGG_FST)
+		resultCurrToken = tokanizer.doAggFst(currentToken);
+	else if (currentToken.type == Tokanizer::Token::AGG_LST)
+		resultCurrToken = tokanizer.doAggLst(currentToken);
+	else if (currentToken.type == Tokanizer::Token::SRT_REV)
+		resultCurrToken = tokanizer.doSrtRev(currentToken);
+	else if (currentToken.type == Tokanizer::Token::SRT_ORD)
+		resultCurrToken = tokanizer.doSrtOrd(currentToken);
+	else if (currentToken.type == Tokanizer::Token::SRT_SLC)
+		resultCurrToken = tokanizer.doSrtSlc(currentToken);
+	else if (currentToken.type == Tokanizer::Token::SRT_DST)
+		resultCurrToken = tokanizer.doSrtDst(currentToken);
+	else if (currentToken.type == Tokanizer::Token::LET_TAG)
+		resultCurrToken = currentToken.params;
+
+	return resultCurrToken;
+}
+
 std::string Tokanizer::doMapInc(Tokanizer::Token& token) {
 	std::string result = "";
 
@@ -612,8 +679,7 @@ std::string Tokanizer::doAggSum(Tokanizer::Token& token) {
 std::string Tokanizer::doAggPro(Tokanizer::Token& token) {
 	std::vector<int> paramsAsInts = paramsInVector(token.params);
 	std::string tokenNString = token.paramName;
-	int tokenN = std::stoi(tokenNString);
-	int res = 0;
+	int res = 1;
 
 	for (auto& num : paramsAsInts) // access by reference to avoid copying
 	{

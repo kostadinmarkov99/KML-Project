@@ -41,4 +41,5 @@ public:
 	std::string doSrtOrd(Tokanizer::Token&  token);
 	std::string doSrtSlc(Tokanizer::Token&  token);
 	std::string doSrtDst(Tokanizer::Token&  token);
+	std::string doTasks(Tokanizer& tokanizer, Tokanizer::Token& currentToken);
 };

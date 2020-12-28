@@ -61,10 +61,23 @@ int main()
         return 1;
     }
 
+    bool errorFlag = false;
+
+    std::ofstream resultFile(outputFileName);
+
     Tokanizer tokanizer(stringFromFile);
     std::string stringFromFileCopy = stringFromFile;
 
+
     Tokanizer::Token token = tokanizer.getNextToken(stringFromFile, stringFromFileCopy);
+
+    if (token.type == Tokanizer::Token::ERROR) {
+        errorFlag = true;
+        resultFile << "Incorect input!";
+        resultFile.close();
+        return 0;
+    }
+
     std::stack<Tokanizer::Token> tokenStack;
     std::queue<Tokanizer::Token> addParamStack;
     tokenStack.push(token);
@@ -89,6 +102,13 @@ int main()
                 tokenStack.push(currentToken);
                 Tokanizer::Token tk = tokanizer.getNextToken(stringFromFile, stringFromFileCopy);
 
+                if (tk.type == Tokanizer::Token::ERROR) {
+                    errorFlag = true;
+                    resultFile << "Incorect input!";
+                    resultFile.close();
+                    return 0;
+                }
+
                 if (tk.pn.params != "Undefined") {
                     //tokenStack.push(tk);
                     //int index = tokenStack.size();
@@ -101,36 +121,9 @@ int main()
         }//MAP_INC, MAP_MLT, AGG_SUM, AGG_PRO, AGG_AVG, AGG_FST, AGG_LST, SRT_REV, SRT_ORD, SRT_SLC, SRT_DST, NUMS
         if(flag){
             //Do the tag and update the last tag
-            std::string resultCurrToken = "";
-            if (currentToken.type == Tokanizer::Token::MAP_INC) {
-                resultCurrToken = tokanizer.doMapInc(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::MAP_MLT) {
-                resultCurrToken = tokanizer.doMapMlp(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::AGG_SUM) {
-                resultCurrToken = tokanizer.doAggSum(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::AGG_PRO) {
-                resultCurrToken = tokanizer.doAggPro(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::AGG_AVG) {
-                resultCurrToken = tokanizer.doAggAvg(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::AGG_FST) {
-                resultCurrToken = tokanizer.doAggFst(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::AGG_LST) {
-                resultCurrToken = tokanizer.doAggLst(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::SRT_REV) {
-                resultCurrToken = tokanizer.doSrtRev(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::SRT_ORD) {
-                resultCurrToken = tokanizer.doSrtOrd(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::SRT_SLC) {
-                resultCurrToken = tokanizer.doSrtSlc(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::SRT_DST) {
-                resultCurrToken = tokanizer.doSrtDst(currentToken);
-            }else if (currentToken.type == Tokanizer::Token::LET_TAG) {
-                resultCurrToken = currentToken.params;
-            }
+            std::string resultCurrToken = tokanizer.doTasks(tokanizer, currentToken);
 
-            int currStackIndex = tokenStack.size() + 1;
+            //int currStackIndex = tokenStack.size() + 1;
 
             if (currentToken.prevTag == currentTokenOther.pn.nextTag) {
                 resultCurrToken += " " + currentTokenOther.pn.params;
@@ -153,51 +146,17 @@ int main()
             tokenStack.push(nextToken);
         }
         else if (!flagTwo) {
-            std::string resultCurrToken = "";
-            if (currentToken.type == Tokanizer::Token::MAP_INC) {
-                resultCurrToken = tokanizer.doMapInc(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::MAP_MLT) {
-                resultCurrToken = tokanizer.doMapMlp(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::AGG_SUM) {
-                resultCurrToken = tokanizer.doAggSum(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::AGG_PRO) {
-                resultCurrToken = tokanizer.doAggPro(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::AGG_AVG) {
-                resultCurrToken = tokanizer.doAggAvg(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::AGG_FST) {
-                resultCurrToken = tokanizer.doAggFst(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::AGG_LST) {
-                resultCurrToken = tokanizer.doAggLst(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::SRT_REV) {
-                resultCurrToken = tokanizer.doSrtRev(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::SRT_ORD) {
-                resultCurrToken = tokanizer.doSrtOrd(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::SRT_SLC) {
-                resultCurrToken = tokanizer.doSrtSlc(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::SRT_DST) {
-                resultCurrToken = tokanizer.doSrtDst(currentToken);
-            }
-            else if (currentToken.type == Tokanizer::Token::LET_TAG) {
-                resultCurrToken = currentToken.params;
-            }
-            resultString = resultCurrToken;
+            
+            resultString = tokanizer.doTasks(tokanizer, currentToken);
         }
     }
-
-    std::ofstream resultFile(outputFileName);
-    resultFile << resultString;
+    
+    if (resultString == "" || errorFlag) {
+        resultFile << "Incorect input!";
+    }
+    else
+        resultFile << resultString;
     resultFile.close();
 
     std::cout << resultString << std::endl;
 }
-
