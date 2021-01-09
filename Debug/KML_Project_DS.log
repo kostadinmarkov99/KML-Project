@@ -1,0 +1,8 @@
+﻿  IML.cpp
+  KML_Project_DS.cpp
+  Tokenizer.cpp
+C:\Users\PC\source\repos\KMLProjectKalin\IML tests\KML_Project_DS\Tokenizer.cpp(149,39): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\PC\source\repos\KMLProjectKalin\IML tests\KML_Project_DS\Tokenizer.cpp(152,36): warning C4553: '==': result of expression not used; did you intend '='?
+C:\Users\PC\source\repos\KMLProjectKalin\IML tests\KML_Project_DS\Tokenizer.cpp(176,27): warning C4101: 'exc': unreferenced local variable
+  Generating Code...
+  KML_Project_DS.vcxproj -> C:\Users\PC\source\repos\KMLProjectKalin\IML tests\KML_Project_DS\Debug\KML_Project_DS.exe

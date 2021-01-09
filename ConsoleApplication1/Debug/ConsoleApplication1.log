@@ -1,0 +1,3 @@
+﻿  ConsoleApplication1.cpp
+ConsoleApplication1.obj : error LNK2019: unresolved external symbol "public: void __thiscall IML::IML_start(void)" (?IML_start@IML@@QAEXXZ) referenced in function "void __cdecl _DOCTEST_ANON_FUNC_10(void)" (?_DOCTEST_ANON_FUNC_10@@YAXXZ)
+C:\Users\PC\source\repos\KMLProjectKalin\IML tests\KML_Project_DS\Debug\ConsoleApplication1.exe : fatal error LNK1120: 1 unresolved externals

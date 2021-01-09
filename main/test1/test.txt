@@ -1,0 +1,1 @@
+<AGG-FST>1 2 3</AGG-FST>
